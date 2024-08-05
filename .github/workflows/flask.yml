@@ -1,13 +1,58 @@
-            - name: Finalyze with CodeQL
-  # You may pin to the exact commit or the version.
-  # uses: codebeltnet/codeql-scan-finalize@867d6eae8144fb849b11576e06fb81b01494075c
-  uses: codebeltnet/codeql-scan-finalize@v1.0.0
+name: CI/CD Pipeline
 
-                      - name: Analyze with CodeQL
-  # You may pin to the exact commit or the version.
-  # uses: codebeltnet/codeql-scan@c88e7da885098fab4183561c3553fc49ec48fb35
-  uses: codebeltnet/codeql-scan@v1.0.0
-  with:
-    # A comma-separated list of CodeQL languages to analyze. Default is csharp.
-    languages: # default is csharp
-          
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' # Specify your Python version
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest # Adjust this to your testing framework
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' # Specify your Python version
+
+      - name: Build application
+        run: |
+          python setup.py install # Modify based on your build process
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Deploy to server
+        run: |
+          # Add deployment commands here
+          echo "Deploying application..."
